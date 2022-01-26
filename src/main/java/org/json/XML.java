@@ -1113,7 +1113,7 @@ public class XML {
                                     } else {
                                         context.accumulate(tagName, jsonObject);
                                         if (isSamePath(path, curPath)) {
-                                            if  (jsonObject.opt("content") != null) {
+                                            if (jsonObject.opt("content") != null) {
                                                 jsonObject.put(tagName, jsonObject.get("content"));
                                                 jsonObject.remove("content");
                                             }
@@ -1127,7 +1127,7 @@ public class XML {
                                 }
 
                                 if (isSamePath(path, curPath)) { // /contact/nick {"nick", "xxxx"}
-                                    if  (jsonObject.opt("content") != null) {
+                                    if (jsonObject.opt("content") != null) {
                                         jsonObject.put(tagName, jsonObject.get("content"));
                                         jsonObject.remove("content");
                                     }
@@ -1148,7 +1148,7 @@ public class XML {
         }
     }
 
-    private static boolean myParse2(XMLTokener x, JSONObject context, String name, XMLParserConfiguration config, String[] path, Deque<String> curPath, int curPathIndex, JSONObject replacement)
+    private static boolean myParse2(XMLTokener x, JSONObject context, String name, XMLParserConfiguration config, String[] path, Deque<String> curPath, JSONObject replacement)
             throws JSONException {
         char c;
         int i;
@@ -1234,25 +1234,8 @@ public class XML {
 
         } else {
             tagName = (String) token;
-            if (curPath.peek() == null || (curPath.peek() != null && !curPath.peek().equals(tagName))) {
-                curPath.push(tagName);
-                curPathIndex++;
-            }
+            curPath.push(tagName);
 
-            if (curPathIndex < path.length && isDigit(path[curPathIndex])) {
-                String index = "0";
-                Object obj = context.opt(tagName);
-                if (obj == null) {
-                    index = "0";
-                } else if (obj != null && obj.getClass().toString().contains("JSONArray")) {
-                    JSONArray ary = (JSONArray) obj;
-                    index = Integer.toString(ary.length());
-                } else {
-                    index = "1";
-                }
-                curPath.push(index);
-                curPathIndex++;
-            }
             token = null;
             jsonObject = new JSONObject();
             boolean nilAttributeFound = false;
@@ -1338,12 +1321,11 @@ public class XML {
 
                         } else if (token == LT) {
                             // Nested element
-                            if (myParse2(x, jsonObject, tagName, config, path, curPath, curPathIndex, replacement)) {
+                            if (myParse2(x, jsonObject, tagName, config, path, curPath, replacement)) {
                                 if (isSamePath(path, curPath)) {
                                     if (jsonObject.opt("content") != null) {
                                         jsonObject.put("content", replacement.get(tagName));
-                                    }
-                                    else {
+                                    } else {
                                         jsonObject.put(tagName, replacement.get(tagName));
                                     }
                                 }
@@ -1370,19 +1352,24 @@ public class XML {
                                         }
                                     }
                                 }
-                            return false;
+                                return false;
+                            }
+                            if (!curPath.isEmpty()) {
+                                curPath.pop();
+                            }
                         }
-                    if (!curPath.isEmpty()) {
-                        curPath.pop();
                     }
+                } else {
+                    throw x.syntaxError("Misshaped tag");
                 }
             }
-        } else {
-            throw x.syntaxError("Misshaped tag");
         }
     }
-}
-}
+
+    /*
+    This toJSONObject method cannot handle path does not exist situation and JSONArray
+    If path does not exist, this method will return a JSONObject after parsing entire xml file
+    */
 
     public static JSONObject toJSONObject(Reader reader, JSONPointer path) throws JSONException {
 
@@ -1418,7 +1405,7 @@ public class XML {
                 Deque<String> stack = new ArrayDeque<String>();
                 String[] paths = path.toString().trim().split("/");
                 paths = Arrays.stream(paths).filter(s -> !s.isEmpty()).toArray(String[]::new);
-                myParse2(x, jo, null, XMLParserConfiguration.ORIGINAL, paths, stack, 0, replacement);
+                myParse2(x, jo, null, XMLParserConfiguration.ORIGINAL, paths, stack, replacement);
             }
         }
         if (path.toString().equals("/") || path.toString().isEmpty()) {

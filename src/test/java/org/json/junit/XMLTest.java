@@ -1118,6 +1118,14 @@ public class XMLTest {
             System.out.println("Expected: \n" + expectedStr);
             System.out.println("Actual: \n" + obj.toString());
             assertEquals(expectedStr, obj.toString());
+
+            // Error conditions
+            obj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/city"));
+            expectedStr = null;
+            System.out.println("Path: /contact/city");
+            System.out.println("Expected: \n" + expectedStr);
+            System.out.println("Actual: \n" + obj);
+            assertEquals(expectedStr, obj);
         } catch (JSONException e) {
             System.out.println(e);
         }
@@ -1162,7 +1170,6 @@ public class XMLTest {
             assertEquals("{\"contact\":{\"nick\":\"Crista\",\"address\":{\"zipcode\":93501,\"street\":\"Ave of Nowhere\"},\"name\":\"Crista Lopes\"}}", jobj.toString());
 
             System.out.println("-----------------------");
-
 
             replacement = XML.toJSONObject("<street>Ave of the Arts</street>\n");
             System.out.println("Path: /");
