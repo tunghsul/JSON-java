@@ -1340,7 +1340,12 @@ public class XML {
                             // Nested element
                             if (myParse2(x, jsonObject, tagName, config, path, curPath, curPathIndex, replacement)) {
                                 if (isSamePath(path, curPath)) {
-                                    jsonObject = replacement;
+                                    if (jsonObject.opt("content") != null) {
+                                        jsonObject.put("content", replacement.get(tagName));
+                                    }
+                                    else {
+                                        jsonObject.put(tagName, replacement.get(tagName));
+                                    }
                                 }
                                 if (config.getForceList().contains(tagName)) {
                                     // Force the value to be an array
