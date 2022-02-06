@@ -1182,4 +1182,21 @@ public class XMLTest {
         }
         System.out.println("-----------------------");
     }
+
+    @Test
+    public void testToJSONObjectFunction() {
+        String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                "<contact>\n"+
+                "  <nick>Crista </nick>\n"+
+                "  <name>Crista Lopes</name>\n" +
+                "  <address>\n" +
+                "    <street>Ave of Nowhere</street>\n" +
+                "    <zipcode>92614</zipcode>\n" +
+                "  </address>\n" +
+                "</contact>";
+
+        JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), (str) -> str + "_");
+        System.out.println("Result: \n" + jobj.toString());
+        assertEquals("{\"contact_\":{\"address_\":{\"zipcode_\":92614,\"street_\":\"Ave of Nowhere\"},\"nick_\":\"Crista\",\"name_\":\"Crista Lopes\"}}", jobj.toString());
+    }
 }
