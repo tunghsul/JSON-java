@@ -1198,5 +1198,22 @@ public class XMLTest {
         JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), (str) -> str + "_");
         System.out.println("Result: \n" + jobj.toString());
         assertEquals("{\"contact_\":{\"address_\":{\"zipcode_\":92614,\"street_\":\"Ave of Nowhere\"},\"nick_\":\"Crista\",\"name_\":\"Crista Lopes\"}}", jobj.toString());
+
+        jobj = XML.toJSONObject(new StringReader(xmlString), (str) -> String.valueOf(new StringBuffer(str).reverse()));
+        System.out.println("Result: \n" + jobj.toString());
+        assertEquals("{\"tcatnoc\":{\"eman\":\"Crista Lopes\",\"sserdda\":{\"edocpiz\":92614,\"teerts\":\"Ave of Nowhere\"},\"kcin\":\"Crista\"}}", jobj.toString());
+
+        jobj = XML.toJSONObject(new StringReader(xmlString), (str) -> str + "_swe262");
+        System.out.println("Result: \n" + jobj.toString());
+        assertEquals("{\"contact_swe262\":{\"address_swe262\":{\"zipcode_swe262\":92614,\"street_swe262\":\"Ave of Nowhere\"},\"nick_swe262\":\"Crista\",\"name_swe262\":\"Crista Lopes\"}}", jobj.toString());
+
+        jobj = XML.toJSONObject(new StringReader(xmlString), (str) -> "swe262_" + str);
+        System.out.println("Result: \n" + jobj.toString());
+        assertEquals("{\"swe262_contact\":{\"swe262_address\":{\"swe262_zipcode\":92614,\"swe262_street\":\"Ave of Nowhere\"},\"swe262_nick\":\"Crista\",\"swe262_name\":\"Crista Lopes\"}}", jobj.toString());
+
+        jobj = XML.toJSONObject(new StringReader(xmlString), (str) -> "swe262" + str);
+        System.out.println("Result: \n" + jobj.toString());
+        assertEquals("{\"swe262contact\":{\"swe262address\":{\"swe262zipcode\":92614,\"swe262street\":\"Ave of Nowhere\"},\"swe262nick\":\"Crista\",\"swe262name\":\"Crista Lopes\"}}", jobj.toString());
+
     }
 }
