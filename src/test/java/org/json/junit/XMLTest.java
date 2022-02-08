@@ -1209,11 +1209,11 @@ public class XMLTest {
 
         jobj = XML.toJSONObject(new StringReader(xmlString), (str) -> "swe262_" + str);
         System.out.println("Result: \n" + jobj.toString());
-        assertEquals("{\"swe262_contact\":{\"swe262_address\":{\"swe262_zipcode\":92614,\"swe262_street\":\"Ave of Nowhere\"},\"swe262_nick\":\"Crista\",\"swe262_name\":\"Crista Lopes\"}}", jobj.toString());
+        assertEquals("{\"swe262_contact\":{\"swe262_name\":\"Crista Lopes\",\"swe262_nick\":\"Crista\",\"swe262_address\":{\"swe262_street\":\"Ave of Nowhere\",\"swe262_zipcode\":92614}}}", jobj.toString());
 
         jobj = XML.toJSONObject(new StringReader(xmlString), (str) -> "swe262" + str);
         System.out.println("Result: \n" + jobj.toString());
-        assertEquals("{\"swe262contact\":{\"swe262address\":{\"swe262zipcode\":92614,\"swe262street\":\"Ave of Nowhere\"},\"swe262nick\":\"Crista\",\"swe262name\":\"Crista Lopes\"}}", jobj.toString());
+        assertEquals("{\"swe262contact\":{\"swe262address\":{\"swe262street\":\"Ave of Nowhere\",\"swe262zipcode\":92614},\"swe262nick\":\"Crista\",\"swe262name\":\"Crista Lopes\"}}", jobj.toString());
 
     }
 }
