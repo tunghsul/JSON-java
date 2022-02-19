@@ -36,18 +36,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * A JSONObject is an unordered collection of name/value pairs. Its external
@@ -2721,5 +2715,69 @@ public class JSONObject {
         return new JSONException(
             "JavaBean object contains recursively defined member variable of key " + quote(key)
         );
+    }
+
+    public Stream<JSONObject> toStream() {
+        return StreamSupport.stream(this.spliterator(), false);
+    }
+
+    public Spliterator<JSONObject> spliterator() {
+        return new JSONSpliterator(this);
+    }
+
+    static class JSONSpliterator implements Spliterator<JSONObject> {
+        private final JSONObject root;
+        private JSONObject tree;
+
+        JSONSpliterator(JSONObject t) {
+            root = tree = t;
+        }
+
+        @Override
+        public int characteristics() {
+            return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL;
+        }
+
+        @Override
+        public long estimateSize() {
+            return Long.MAX_VALUE;
+        }
+
+        @Override
+        public boolean tryAdvance(Consumer<? super JSONObject> action) {
+            JSONObject current = tree;
+
+            for (String key : current.keySet()) {
+                Object childObj = current.get(key);
+                if (childObj instanceof JSONObject) {
+                    action.accept(current);
+                    tree = (JSONObject) childObj;
+                    tryAdvance(action);
+                    continue;
+                }
+
+                if (childObj instanceof JSONArray) {
+                    action.accept(current);
+                    JSONArray ary = (JSONArray)childObj;
+                    for (int i  =  0; i < ary.length(); i++) {
+                        JSONObject obj =  ary.getJSONObject(i);
+                        tree = obj;
+                        tryAdvance(action);
+                    }
+                    continue;
+                }
+
+                JSONObject newNode = new JSONObject();
+                newNode.put(key, childObj);
+                action.accept(newNode);
+            }
+
+            return false;
+        }
+
+        @Override
+        public Spliterator<JSONObject> trySplit() {
+            return null;
+        }
     }
 }
