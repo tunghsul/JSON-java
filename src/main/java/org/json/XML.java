@@ -35,7 +35,10 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * This provides static methods to convert an XML text into a JSONObject, and to
@@ -1633,6 +1636,21 @@ public class XML {
         return jo;
     }
 
+    public static CompletableFuture<JSONObject> toJSONObject(Reader reader, Consumer<Exception> err) {
+        Supplier<JSONObject> supplier = () -> {
+            JSONObject res = null;
+            try {
+                res = toJSONObject(reader, XMLParserConfiguration.ORIGINAL);
+            } catch (JSONException e) {
+                err.accept(e);
+            }
+
+            return res;
+        };
+
+        return CompletableFuture.supplyAsync(supplier);
+    }
+
     private static Boolean isSamePath(String[] searchPath, Deque<String> curPath) {
         String searchP = "";
         for (int i = searchPath.length - 1; i >= 0; i--) {
@@ -1661,4 +1679,5 @@ public class XML {
 
         return result;
     }
+
 }

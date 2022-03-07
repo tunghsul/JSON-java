@@ -40,6 +40,10 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.json.*;
 import org.junit.Rule;
@@ -1199,7 +1203,7 @@ public class XMLTest {
         System.out.println("Result: \n" + jobj.toString());
         assertEquals("{\"contact_\":{\"address_\":{\"zipcode_\":92614,\"street_\":\"Ave of Nowhere\"},\"nick_\":\"Crista\",\"name_\":\"Crista Lopes\"}}", jobj.toString());
 
-        jobj = XML.toJSONObject(new StringReader(xmlString), (str) -> String.valueOf(new StringBuffer(str).reverse()));
+        jobj = XML.toJSONObject(new StringReader(xmlString), (Function<String, String>) (str) -> String.valueOf(new StringBuffer(str).reverse()));
         System.out.println("Result: \n" + jobj.toString());
         assertEquals("{\"tcatnoc\":{\"eman\":\"Crista Lopes\",\"sserdda\":{\"edocpiz\":92614,\"teerts\":\"Ave of Nowhere\"},\"kcin\":\"Crista\"}}", jobj.toString());
 
@@ -1214,6 +1218,27 @@ public class XMLTest {
         jobj = XML.toJSONObject(new StringReader(xmlString), (str) -> "swe262" + str);
         System.out.println("Result: \n" + jobj.toString());
         assertEquals("{\"swe262contact\":{\"swe262address\":{\"swe262street\":\"Ave of Nowhere\",\"swe262zipcode\":92614},\"swe262nick\":\"Crista\",\"swe262name\":\"Crista Lopes\"}}", jobj.toString());
+    }
 
+    @Test
+    public void testFutureToJSONObject() {
+        String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                "<contact>\n"+
+                "  <nick>Crista </nick>\n"+
+                "  <name>Crista Lopes</name>\n" +
+                "  <address>\n" +
+                "    <street>Ave of Nowhere</street>\n" +
+                "    <zipcode>92614</zipcode>\n" +
+                "  </address>\n" +
+                "</contact>";
+
+        try {
+            JSONObject expected = XML.toJSONObject(xmlString);
+            CompletableFuture<JSONObject> res = XML.toJSONObject(new StringReader(xmlString), (Consumer<Exception>) System.out::println);
+            assertEquals(expected.toString(), res.get().toString());
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 }
